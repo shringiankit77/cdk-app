@@ -79,24 +79,11 @@ public class NewStackBuildStack extends Stack {
                 .input(source)
                 .env(Map.of("IMAGE_NAME", repository.getRepositoryUri()))
                 .rolePolicyStatements(ecrPolicyStatements)
-                .buildEnvironment(BuildEnvironment.builder()
-                    .buildImage(LinuxBuildImage.STANDARD_7_0)
-                    .privileged(true) // Required if using Docker
-                    .build())
                 .build();
 
-
-
-        StageDeployment buildStage = pipeline.addStage(new MyEcsDeployStage(this,"BuildDockerImage"), AddStageOpts.builder().build());
-        buildStage.addPost(jibBuildStep);
-
-
+        pipeline.addStage(new MyEcsDeployStage(this,"BuildDockerImage")).addPost(jibBuildStep);
         pipeline.buildPipeline();
-
         repository.grantPullPush(jibBuildStep.getProject());
-
-
-
 
     }
 }
