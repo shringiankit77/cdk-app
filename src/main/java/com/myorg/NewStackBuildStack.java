@@ -63,9 +63,9 @@ public class NewStackBuildStack extends Stack {
 
                 .synth(ShellStep.Builder.create("Synth")
                         .input(sourceCdk)
+
                        .commands(List.of(
                                 "npm install -g aws-cdk",     // install CDK CLI
-                                "cdk bootstrap  --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess ",             // optional: bootstrap
                                  "cdk synth"))
                         .build())
                 .build();
