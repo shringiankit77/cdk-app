@@ -17,6 +17,8 @@ import java.util.Map;
 public class NewCdkSetUpStack extends Stack {
     private String codeBuild = "DockerImageBuildAndPush";
     private String pipelineName = "codePipeline";
+    private String ecrRepoId = "SpringBootRepository";
+    private String repositoryName = "springboot-application-demo";
 
     public NewCdkSetUpStack(final Construct scope, final String id) {
         this(scope, id, null,null);
@@ -25,9 +27,14 @@ public class NewCdkSetUpStack extends Stack {
     public NewCdkSetUpStack(final Construct scope, final String id, final StackProps props, final DataBaseandECSStack service) {
         super(scope, id, props);
 
+        // ✅ ECR repository
         IRepository repository=   Repository.fromRepositoryName(this,"reopsitory","springboot-application-demo");
 //        IRepository repository= Repository.fromRepositoryArn(this,"repository","")
-
+        if(repository==null) {
+            repository=   Repository.Builder.create(this, ecrRepoId)
+                    .repositoryName(repositoryName)
+                    .build();
+        }
 
         CodePipelineSource sourceCdk = CodePipelineSource.connection(
                 "shringiankit77/cdk-app", "master",
