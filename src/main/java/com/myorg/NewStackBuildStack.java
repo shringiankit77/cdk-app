@@ -79,6 +79,10 @@ public class NewStackBuildStack extends Stack {
                 .input(source)
                 .env(Map.of("IMAGE_NAME", repository.getRepositoryUri()))
                 .rolePolicyStatements(ecrPolicyStatements)
+                .buildEnvironment(BuildEnvironment.builder()
+                    .buildImage(LinuxBuildImage.STANDARD_7_0)
+                    .privileged(true) // Required if using Docker
+                    .build())
                 .build();
 
 
