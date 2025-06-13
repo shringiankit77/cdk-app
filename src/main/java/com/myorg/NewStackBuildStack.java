@@ -31,11 +31,11 @@ public class NewStackBuildStack extends Stack {
 
         CodePipelineSource sourceCdk = CodePipelineSource.connection(
                 "shringiankit77/cdk-app", "master",
-                ConnectionSourceOptions.builder().connectionArn(System.getenv("CONNECTION_URL_CDK")).build()
+                ConnectionSourceOptions.builder().connectionArn("arn:aws:codeconnections:ap-south-1:292659698864:connection/41693b7a-64b6-42f4-a0e0-889e7863e7f8").build()
         );
         CodePipelineSource source = CodePipelineSource.connection(
                 "shringiankit77/first-java-app", "master",
-                ConnectionSourceOptions.builder().connectionArn(System.getenv("CONNECTION_URL")).build()
+                ConnectionSourceOptions.builder().connectionArn("arn:aws:codeconnections:ap-south-1:292659698864:connection/41693b7a-64b6-42f4-a0e0-889e7863e7f8").build()
         );
 
         List<PolicyStatement> ecrPolicyStatements = List.of(
@@ -60,12 +60,15 @@ public class NewStackBuildStack extends Stack {
 
         CodePipeline pipeline = CodePipeline.Builder.create(this, "SpringBootPipeline")
                 .pipelineName("SpringBootJibPipeline")
+
                 .synth(ShellStep.Builder.create("Synth")
                         .input(sourceCdk)
+                        .env(Map.of("ACCOUNT_ID","292659698864",
+                        "CONNECTION_URL","arn:aws:codeconnections:ap-south-1:292659698864:connection/41693b7a-64b6-42f4-a0e0-889e7863e7f8"))
                         .commands(List.of(
                                 "npm install -g aws-cdk",     // install CDK CLI
                                 "cdk bootstrap",             // optional: bootstrap
-                                 "cdk synth"))
+                                 "cdk synth stack-*"))
                         .build())
                 .build();
 
