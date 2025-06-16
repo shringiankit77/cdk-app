@@ -3,9 +3,6 @@ package com.myorg;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.pipelines.*;
-import software.amazon.awscdk.services.codebuild.BuildEnvironment;
-import software.amazon.awscdk.services.codebuild.LinuxBuildImage;
-import software.amazon.awscdk.services.codepipeline.StageProps;
 import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.iam.PolicyStatement;
@@ -27,7 +24,6 @@ public class NewStackBuildStack extends Stack {
 
         IRepository repository=   Repository.fromRepositoryName(this,"reopsitory","springboot-application-demo");
 //        IRepository repository= Repository.fromRepositoryArn(this,"repository","")
-
 
         CodePipelineSource sourceCdk = CodePipelineSource.connection(
                 "shringiankit77/cdk-app", "master",
