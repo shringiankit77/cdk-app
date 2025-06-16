@@ -1,8 +1,6 @@
 package com.myorg;
 
-import software.amazon.awscdk.CfnOutput;
-import software.amazon.awscdk.Stack;
-import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.*;
 import software.amazon.awscdk.services.ec2.*;
 import software.amazon.awscdk.services.ec2.InstanceType;
 import software.amazon.awscdk.services.ecr.IRepository;
@@ -10,6 +8,11 @@ import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.ecs.*;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedFargateService;
 import software.amazon.awscdk.services.ecs.patterns.ApplicationLoadBalancedTaskImageOptions;
+import software.amazon.awscdk.services.elasticloadbalancingv2.AddApplicationActionProps;
+import software.amazon.awscdk.services.elasticloadbalancingv2.ApplicationListener;
+import software.amazon.awscdk.services.elasticloadbalancingv2.HealthCheck;
+import software.amazon.awscdk.services.elasticloadbalancingv2.ListenerAction;
+import software.amazon.awscdk.services.elasticloadbalancingv2.ListenerCondition;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
@@ -105,6 +108,8 @@ public class DataBaseandECSStack extends Stack {
                 .credentials(Credentials.fromSecret(dbCredentials))
                 .vpcSubnets(SubnetSelection.builder().subnetType(SubnetType.PRIVATE_WITH_EGRESS).build())
                 .instanceType(InstanceType.of(InstanceClass.BURSTABLE3, InstanceSize.MICRO))
+                .deletionProtection(false)
+                .removalPolicy(RemovalPolicy.DESTROY)
                 .allocatedStorage(20)
                 .securityGroups(java.util.List.of(dbSG))
                 .databaseName(databaseName)
@@ -158,16 +163,24 @@ public class DataBaseandECSStack extends Stack {
                 .build();
 
 
-//        ApplicationListener listener = fargateService.getListener();
-//
-//        listener.addAction("PostUsersRule", AddApplicationActionProps.builder()
-//                .priority(10) // must be unique and < 50000
-//                .conditions(java.util.List.of(
-//                        ListenerCondition.pathPatterns(java.util.List.of("/api/users","/api/users")),
-//                        ListenerCondition.httpRequestMethods(java.util.List.of("POST","GET","PUT"))
-//                ))
-//                .action(ListenerAction.forward(java.util.List.of(fargateService.getTargetGroup())))
-//                .build());
+
+        fargateService.getTargetGroup().configureHealthCheck(HealthCheck.builder()
+                .path("/actuator/health")  // <<-- your health check endpoint
+                .port("80")
+                .healthyHttpCodes("200")
+                .interval(Duration.seconds(30))
+                .timeout(Duration.seconds(5))
+                .build());
+
+        fargateService.getListener().addAction("AllowApiOnly",
+                AddApplicationActionProps.builder()
+                        .priority(1)
+                        .conditions(List.of(
+                                ListenerCondition.pathPatterns(List.of("/api/*","/actuator/health")),
+                                ListenerCondition.httpRequestMethods(java.util.List.of("POST","GET","PUT"))
+                        ))
+                        .action(ListenerAction.forward(List.of(fargateService.getTargetGroup())))
+                        .build());
         // ✅ Output the DB endpoint
         CfnOutput.Builder.create(this, "DBEndpoint")
                 .value(db.getDbInstanceEndpointAddress())
