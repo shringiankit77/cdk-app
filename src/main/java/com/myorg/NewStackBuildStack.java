@@ -64,6 +64,7 @@ public class NewStackBuildStack extends Stack {
                                 "npm install -g aws-cdk",     // install CDK CLI
                                  "cdk synth"))
                         .build())
+                .selfMutation(true)
                 .build();
 
         CodeBuildStep jibBuildStep = CodeBuildStep.Builder.create("JibBuildPush")
