@@ -1,5 +1,6 @@
 package com.myorg;
 
+import software.amazon.awscdk.SecretValue;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.pipelines.*;
@@ -29,9 +30,11 @@ public class NewStackBuildStack extends Stack {
                 "shringiankit77/cdk-app", "master",
                 ConnectionSourceOptions.builder().connectionArn("arn:aws:codeconnections:ap-south-1:292659698864:connection/41693b7a-64b6-42f4-a0e0-889e7863e7f8").build()
         );
-        CodePipelineSource source = CodePipelineSource.connection(
+        CodePipelineSource source = CodePipelineSource.gitHub(
                 "shringiankit77/first-java-app", "master",
-                ConnectionSourceOptions.builder().connectionArn("arn:aws:codeconnections:ap-south-1:292659698864:connection/41693b7a-64b6-42f4-a0e0-889e7863e7f8").build()
+                GitHubSourceOptions.builder()
+                        .authentication(SecretValue.secretsManager("GITHUB_TOKEN")) // store GitHub token in Secrets Manager
+                        .build()
         );
 
         List<PolicyStatement> ecrPolicyStatements = List.of(
@@ -65,6 +68,7 @@ public class NewStackBuildStack extends Stack {
                                  "cdk synth"))
                         .build())
                 .selfMutation(true)
+
                 .build();
 
         CodeBuildStep jibBuildStep = CodeBuildStep.Builder.create("JibBuildPush")
