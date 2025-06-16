@@ -1,18 +1,15 @@
-# Welcome to your CDK Java project!
+# Welcome to CDK Java project!
 
-This is a blank project for CDK development with Java.
+This is a project for CDK development with ECS fargate service with mysqldb and ci/cd pipline implemented
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
-It is a [Maven](https://maven.apache.org/) based project, so you can open this project with any Maven compatible Java IDE to build and run tests.
-
 ## Useful commands
 
+ * `set ACCOUNT_ID={account_id}`
  * `mvn package`     compile and run tests
- * `cdk ls`          list all stacks in the app
+ * `cdk bootstrap  --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess   aws://<account-id>/ap-south-1`
  * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+ * `cdk deploy stack-*`      deploy this stack to your default region is ap-south-1
+ 
 
-Enjoy!
