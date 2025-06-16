@@ -44,13 +44,7 @@ public class NewStackBuildStack extends Stack {
                         .build(),
                 PolicyStatement.Builder.create()
                         .actions(List.of(
-                                "ecr:BatchCheckLayerAvailability",
-                                "ecr:GetDownloadUrlForLayer",
-                                "ecr:BatchGetImage",
-                                "ecr:PutImage",
-                                "ecr:InitiateLayerUpload",
-                                "ecr:UploadLayerPart",
-                                "ecr:CompleteLayerUpload"
+                                "ecr:*"
                         ))
                         .resources(List.of(repository.getRepositoryArn()))
                         .build()
@@ -59,16 +53,13 @@ public class NewStackBuildStack extends Stack {
 
         CodePipeline pipeline = CodePipeline.Builder.create(this, "SpringBootPipeline")
                 .pipelineName("SpringBootJibPipeline")
-
                 .synth(ShellStep.Builder.create("Synth")
                         .input(sourceCdk)
-
                        .commands(List.of(
                                 "npm install -g aws-cdk",     // install CDK CLI
                                  "cdk synth"))
                         .build())
                 .selfMutation(true)
-
                 .build();
 
         CodeBuildStep jibBuildStep = CodeBuildStep.Builder.create("JibBuildPush")
